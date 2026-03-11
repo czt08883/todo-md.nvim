@@ -29,6 +29,8 @@ function M.add_task()
   local parser = require('todo-md.parser')
   local tasks, current_task = parser.get_tasks_at_cursor(cursor_row)
 
+  print(string.format('DEBUG: cursor_row=%d, current_task=%s', cursor_row, current_task and 'found' or 'nil'))
+
   local new_task_line
 
   if current_task then
@@ -49,6 +51,7 @@ function M.add_task()
     end
     else
       local callout_row = parser.find_current_callout(cursor_row)
+      print(string.format('DEBUG: callout_row=%s', callout_row and tostring(callout_row) or 'nil'))
       if callout_row then
         local callout_line = vim.api.nvim_buf_get_lines(0, callout_row, callout_row + 1, false)[1]
         local after_callout = callout_line:sub(3)
@@ -58,6 +61,7 @@ function M.add_task()
     else
       -- Create new callout block
       local insert_row = cursor_row - 1  -- convert to 0-indexed
+      print(string.format('DEBUG: creating callout at row %d', insert_row))
       vim.api.nvim_buf_set_lines(0, insert_row, insert_row + 1, false, { '> [!TODO]', '> - [ ] ' })
       vim.api.nvim_win_set_cursor(0, { insert_row + 2, 9 })
       return
