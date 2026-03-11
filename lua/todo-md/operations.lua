@@ -57,8 +57,8 @@ function M.add_task()
         new_task_line = '> ' .. string.rep(' ', content_indent + 2) .. '- [ ] '
     else
       -- Create new callout block
-      local insert_row = cursor_row
-      vim.api.nvim_buf_set_lines(0, insert_row, insert_row, false, { '> [!TODO]', '> - [ ] ' })
+      local insert_row = cursor_row - 1  -- convert to 0-indexed
+      vim.api.nvim_buf_set_lines(0, insert_row, insert_row + 1, false, { '> [!TODO]', '> - [ ] ' })
       vim.api.nvim_win_set_cursor(0, { insert_row + 2, 9 })
       return
     end
