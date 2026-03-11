@@ -13,7 +13,7 @@ Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
 use {
-  'yourusername/todo-md.nvim',
+  'czt08883/todo-md.nvim',
   requires = { 'nvim-treesitter/nvim-treesitter' }
 }
 ```
@@ -22,7 +22,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-  'yourusername/todo-md.nvim',
+  'czt08883/todo-md.nvim',
   dependencies = { 'nvim-treesitter/nvim-treesitter' },
 }
 ```
