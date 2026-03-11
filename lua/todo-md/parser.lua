@@ -61,11 +61,9 @@ function M.find_current_callout(cursor_row)
   local line_num = cursor_row - 1
   local buf = vim.api.nvim_get_current_buf()
 
-  for i = line_num, 0, -1 do
-    local line = vim.api.nvim_buf_get_lines(buf, i, i + 1, false)[1] or ''
-    if line:match '^>%s*%[%!%w+%].*' then
-      return i
-    end
+  local line = vim.api.nvim_buf_get_lines(buf, line_num, line_num + 1, false)[1] or ''
+  if line:match '^>%s*%[%!%w+%].*' then
+    return line_num
   end
 
   return nil
