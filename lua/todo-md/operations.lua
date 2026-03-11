@@ -32,6 +32,12 @@ function M.add_task()
   local parser = require('todo-md.parser')
   local tasks, current_task = parser.get_tasks_at_cursor(cursor_row)
 
+  -- Debug output
+  print(string.format('DEBUG add_task: cursor_row=%d, current_task=%s', cursor_row, current_task and 'found' or 'nil'))
+  if current_task then
+    print(string.format('DEBUG: task row=%d, indent=%d', current_task.row, current_task.indent))
+  end
+
   local new_task_line
 
   if current_task then
@@ -40,6 +46,7 @@ function M.add_task()
     new_task_line = string.rep(' ', new_indent) .. '- [ ] '
   else
     local callout_row = parser.find_current_callout(cursor_row)
+    print(string.format('DEBUG: callout_row=%s', callout_row and tostring(callout_row) or 'nil'))
     if callout_row then
       local callout_line = vim.api.nvim_buf_get_lines(0, callout_row, callout_row + 1, false)[1]
       local callout_indent = #callout_line:match('^%s*')
