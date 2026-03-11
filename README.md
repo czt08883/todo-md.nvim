@@ -27,6 +27,21 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
+With custom options:
+
+```lua
+{
+  'czt08883/todo-md.nvim',
+  dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  opts = {
+    keymaps = {
+      toggle = '<C-SPACE>',
+      add = '<C-RETURN>',
+    },
+  },
+}
+```
+
 ## Setup
 
 ```lua
