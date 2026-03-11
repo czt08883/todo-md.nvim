@@ -1,70 +1,64 @@
 local M = {}
 
-local function get_ts_parser()
-  local ok, parser = pcall(require, 'nvim-treesitter.parser')
-  if not ok then
-    return nil
-  end
-  local buf = vim.api.nvim_get_current_buf()
-  return parser.get_parser(buf, 'markdown')
-end
+-- Regex patterns for task detection
+local TASK_PATTERN = '%-%s+%[%s*%]'
+local TASK_CHECKED_PATTERN = '%-%s+%[x%]'
 
 function M.get_tasks_at_cursor(cursor_row)
-  local parser = get_ts_parser()
-  if not parser then
-    return nil
-  end
-
-  local tree = parser:parse()
-  if not tree or #tree == 0 then
-    return nil
-  end
-
-  local root = tree[1]:root()
+  local buf = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  
   local tasks = {}
-
-  local function process_node(node, parent_task)
-    local node_type = node:type()
-    local start_row, _, end_row, _ = node:range()
-
-    if node_type == 'list_item' then
-      local line = vim.api.nvim_buf_get_lines(0, start_row, start_row + 1, false)[1] or ''
-      if line:match '%-%s+%[%s*%]' or line:match '%-%s+%[x%]' then
-        local task = {
-          row = start_row,
-          end_row = end_row,
-          checked = line:match '%-%s+%[x%]' ~= nil,
-          indent = (#line:match('^%s*') or 0),
-          parent = parent_task,
-        }
-        table.insert(tasks, task)
-        parent_task = task
+  local current_task = nil
+  local parent_stack = {}  -- stack of tasks by indent level
+  local min_distance = math.huge
+  
+  for row, line in ipairs(lines) do
+    -- Check if line contains a task checkbox
+    local is_task = line:match(TASK_PATTERN) ~= nil
+    local is_checked = line:match(TASK_CHECKED_PATTERN) ~= nil
+    
+    if is_task then
+      -- Calculate indent (including callout prefix > )
+      local indent = #line:match('^%s*')
+      
+      -- Find parent task (most recent task with less indent)
+      local parent = nil
+      for i = #parent_stack, 1, -1 do
+        if parent_stack[i].indent < indent then
+          parent = parent_stack[i]
+          break
+        end
+      end
+      
+      local task = {
+        row = row - 1,
+        end_row = row - 1,
+        checked = is_checked,
+        indent = indent,
+        parent = parent,
+      }
+      
+      table.insert(tasks, task)
+      
+      -- Update parent stack: remove tasks with >= indent, add current
+      while #parent_stack > 0 and parent_stack[#parent_stack].indent >= indent do
+        table.remove(parent_stack)
+      end
+      table.insert(parent_stack, task)
+      
+      -- Check if this is the task at cursor
+      local distance = math.abs((row - 1) - (cursor_row - 1))
+      if row - 1 == cursor_row - 1 then
+        current_task = task
+        min_distance = 0
+      elseif distance < min_distance then
+        min_distance = distance
+        current_task = task
       end
     end
-
-    for child in node:iter_children()
-    do
-      process_node(child, parent_task)
-    end
   end
-
-  process_node(root, nil)
-
-  local current_task = nil
-  local min_distance = math.huge
-
-  for _, task in ipairs(tasks) do
-    if task.row == cursor_row - 1 then
-      current_task = task
-      break
-    end
-    local distance = math.abs(task.row - (cursor_row - 1))
-    if distance < min_distance then
-      min_distance = distance
-      current_task = task
-    end
-  end
-
+  
   return tasks, current_task
 end
 
@@ -87,7 +81,7 @@ function M.find_next_task_row(start_row)
   local lines = vim.api.nvim_buf_get_lines(buf, start_row, -1, false)
 
   for i, line in ipairs(lines) do
-    if line:match '%-%s+%[%]' or line:match '%-%s+%[x%]' then
+    if line:match(TASK_PATTERN) then
       return start_row + i - 1
     end
   end
