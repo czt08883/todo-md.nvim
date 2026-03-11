@@ -12,7 +12,6 @@ function M.get_tasks_at_cursor(cursor_row)
   local tasks = {}
   local current_task = nil
   local parent_stack = {}  -- stack of tasks by indent level
-  local min_distance = math.huge
   
   for row, line in ipairs(lines) do
     -- Check if line contains a task checkbox
@@ -48,13 +47,8 @@ function M.get_tasks_at_cursor(cursor_row)
       end
       table.insert(parent_stack, task)
       
-      -- Check if this is the task at cursor
-      local distance = math.abs((row - 1) - (cursor_row - 1))
-      if row - 1 == cursor_row - 1 then
-        current_task = task
-        min_distance = 0
-      elseif distance < min_distance then
-        min_distance = distance
+      -- Check if this is the task on the exact cursor line
+      if row == cursor_row then
         current_task = task
       end
     end
