@@ -35,8 +35,8 @@ With custom options:
   dependencies = { 'nvim-treesitter/nvim-treesitter' },
   opts = {
     keymaps = {
-      toggle = '<C-SPACE>',
-      add = '<C-RETURN>',
+      toggle = '<M-SPACE>',
+      add = '<M-RETURN>',
     },
   },
 }
@@ -47,8 +47,8 @@ With custom options:
 ```lua
 require('todo-md').setup({
   keymaps = {
-    toggle = '<C-SPACE>',  -- default
-    add = '<C-RETURN>',    -- default
+    toggle = '<M-SPACE>',  -- default
+    add = '<M-RETURN>',    -- default
   },
 })
 ```
@@ -59,8 +59,8 @@ require('todo-md').setup({
 
 | Keybinding | Action |
 |------------|--------|
-| `<C-SPACE>` | Toggle task at cursor |
-| `<C-RETURN>` | Add new task or subtask |
+| `<M-SPACE>` | Toggle task at cursor |
+| `<M-RETURN>` | Add new task or subtask |
 
 ### Commands
 

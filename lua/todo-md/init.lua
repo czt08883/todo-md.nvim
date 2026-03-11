@@ -2,8 +2,8 @@ local M = {}
 
 local default_config = {
   keymaps = {
-    toggle = '<C-SPACE>',
-    add = '<C-RETURN>',
+    toggle = '<M-SPACE>',
+    add = '<M-RETURN>',
   },
 }
 
