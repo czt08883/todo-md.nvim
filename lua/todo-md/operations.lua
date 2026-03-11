@@ -32,27 +32,32 @@ function M.add_task()
   local new_task_line
 
   if current_task then
-    local parent_indent = current_task.indent
-    local new_indent = parent_indent + 2
-    -- Check if parent task is in a callout (has "> " prefix)
     local parent_line = vim.api.nvim_buf_get_lines(0, current_task.row, current_task.row + 1, false)[1]
     local has_callout = parent_line:match('^>%s')
+    
     if has_callout then
+      -- Parent is in callout, get indent after "> "
+      local content_start = parent_line:match('^>%s*(.*)')
+      local parent_indent = #parent_line - #content_start
+      local new_indent = parent_indent + 2
       new_task_line = '> ' .. string.rep(' ', new_indent) .. '- [ ] '
     else
+      local parent_indent = current_task.indent
+      local new_indent = parent_indent + 2
       new_task_line = string.rep(' ', new_indent) .. '- [ ] '
     end
   else
     local callout_row = parser.find_current_callout(cursor_row)
     if callout_row then
       local callout_line = vim.api.nvim_buf_get_lines(0, callout_row, callout_row + 1, false)[1]
-      local callout_indent = #callout_line:match('^%s*')
-      new_task_line = string.rep(' ', callout_indent + 2) .. '- [ ] '
+      local content_start = callout_line:match('^>%s*(.*)')
+      local callout_indent = #callout_line - #content_start
+      new_task_line = '> ' .. string.rep(' ', callout_indent + 2) .. '- [ ] '
     else
       -- Create new callout block
       local insert_row = cursor_row
-      vim.api.nvim_buf_set_lines(0, insert_row, insert_row, false, { '> [!TODO]', '> - [ ]' })
-      vim.api.nvim_win_set_cursor(0, { insert_row + 2, 7 })
+      vim.api.nvim_buf_set_lines(0, insert_row, insert_row, false, { '> [!TODO]', '>   - [ ] ' })
+      vim.api.nvim_win_set_cursor(0, { insert_row + 2, 9 })
       return
     end
   end
