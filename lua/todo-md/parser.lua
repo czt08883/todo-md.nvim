@@ -1,7 +1,8 @@
 local M = {}
 
 -- Regex patterns for task detection
-local TASK_PATTERN = '%-%s+%[%s*%]'
+-- Matches: - [ ] or - [x] or - [anything]
+local TASK_PATTERN = '%-%s+%[.*%]'
 local TASK_CHECKED_PATTERN = '%-%s+%[x%]'
 
 function M.get_tasks_at_cursor(cursor_row)
