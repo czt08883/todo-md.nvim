@@ -13,6 +13,10 @@ function M.toggle_task()
   end
 
   local line = vim.api.nvim_buf_get_lines(0, current_task.row, current_task.row + 1, false)[1]
+
+  -- Debug output
+  print(string.format('DEBUG: row=%d, checked=%s, line="%s"', current_task.row, tostring(current_task.checked), line))
+
   if current_task.checked then
     line = line:gsub('%[x%]', '[ ]')
   else
